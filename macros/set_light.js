@@ -1,12 +1,13 @@
 // Set light for selected tokens
 // ordinalm 2026-04-03
+// https://daisychase.net/
 
 // Save as a macro
 // Select the tokens you want to update, run the macro, pick the option from the dialog, and click the button.
 
 // Adding options:
 // To get light update data, select a token with desired light setting, press F12 for the console, then enter:
-// canvas.tokens.controlled[0]?.light
+// canvas.tokens.controlled[0]?.document.light
 // Right-click and copy object, then compare the differences to NO_LIGHT (no light) and add those as a new entry in LIGHT_CHANGES.
 // Usually what changes is "dim" and "bright". Changing "color" will alter colour and luminosity. Changing "animation"
 // will add or alter animation behaviour.
@@ -47,13 +48,29 @@ const LIGHT_CHANGES = [
     {
         name: "Torch",
         data: {
+            alpha: 0.15,
             bright: 3,
             dim: 6,
+            color: "#ffad58",
             animation: {
-                // Example types: "flame", "starlight", "sunburst", "fairy"
                 type: "flame",
-                speed: 5,
-                intensity: 5,
+                speed: 3,
+                intensity: 2,
+                reverse: false,
+            },
+        },
+    },
+    {
+        name: "Candle",
+        data: {
+            alpha: 0.1,
+            bright: 1,
+            dim: 3,
+            color: "#eccd8b",
+            animation: {
+                type: "flame",
+                speed: 2,
+                intensity: 1,
                 reverse: false,
             },
         },
@@ -65,7 +82,6 @@ const LIGHT_CHANGES = [
             dim: 6,
             color: "#004d70",
             animation: {
-                // Example types: "flame", "starlight", "sunburst", "fairy"
                 type: "starlight",
                 speed: 5,
                 intensity: 5,
@@ -74,13 +90,20 @@ const LIGHT_CHANGES = [
         },
     },
     {
-        name: "Candle",
+        name: "Clear light",
+        data: {
+            bright: 3,
+            dim: 6,
+        },
+    },
+    {
+        name: "Dense smoke",
         data: {
             bright: 1,
-            dim: 4,
+            dim: 2,
+            negative: true,
             animation: {
-                // Example types: "flame", "starlight", "sunburst", "fairy"
-                type: "flame",
+                type: "denseSmoke",
                 speed: 5,
                 intensity: 5,
                 reverse: false,
@@ -93,7 +116,7 @@ const LIGHT_CHANGES = [
     }
 ]
 
-const MACRO_TITLE = "Set light";
+const MACRO_TITLE = "Set light for tokens";
 
 const main = async () => {
     if (canvas.tokens.controlled.length === 0) {
@@ -109,7 +132,7 @@ const main = async () => {
     const lightTypeLabel = (item, index) => {
         const checked = index === 0 ? ' checked' : ''
         const description = []
-        for (const x of ["bright", "dim", "color"]) {
+        for (const x of ["bright", "dim", "color", "negative"]) {
             if (item.data[x]) {
                 description.push(`${x} ${item.data[x]}`)
             }
