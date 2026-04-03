@@ -5,8 +5,8 @@
 // If they have no active light it will add a "torch" light with a 6-square dim radius and 3-square bright.
 
 // Custom use:
-// To get light update data, select a token with desired light setting, F12, then enter:
-// canvas.tokens.controlled[0]?.document.light
+// To get light update data, select a token with desired light setting, press F12 for the console, then enter:
+// canvas.tokens.controlled[0]?.light
 // Right-click and copy object, then compare the differences to NO_LIGHT (no light) and add those to LIGHT_CHANGES.
 // Usually what changes is "dim" and "bright". Changing "color" will alter colour and luminosity. Removing "animation"
 // will mean you get a standard non-flickering light - changing "animation.type" will mean a different animation.
@@ -21,7 +21,7 @@ const NO_LIGHT = {
     alpha: 0.5,
     angle: 360,
     bright: 0,
-    color: null,
+    color: "#000000",
     coloration: 1,
     dim: 0,
     attenuation: 0.5,
@@ -47,7 +47,7 @@ const LIGHT_CHANGES = {
     bright: 3,
     dim: 6,
     animation: {
-        // Example types: "flame", "starlight"
+        // Example types: "flame", "starlight", "sunburst", "fairy"
         type: "flame",
         speed: 5,
         intensity: 5,
@@ -56,15 +56,17 @@ const LIGHT_CHANGES = {
 }
 
 canvas.tokens.controlled.forEach(async (token) => {
-    console.log('toggling torchlight for', token)
     if (!token?.document?.light) {
         return
     }
+    const turnOn = token.document.light.dim === 0
+    const turnOnText = turnOn ? 'on' : 'off'
+    console.log(`Toggling light to ${turnOnText} for ${token.name}`)
 
     let lightUpdate = NO_LIGHT
 
-    // If currently dim, apply the
-    if (token.document.light.dim === 0) {
+    // If currently dim, apply the update including the changes
+    if (turnOn) {
         lightUpdate = {...lightUpdate, ...LIGHT_CHANGES}
     }
 
@@ -73,4 +75,7 @@ canvas.tokens.controlled.forEach(async (token) => {
         lightUpdate[f] *= canvas.scene.grid.distance
     }
     await token.document.update({light: lightUpdate})
+
+    // Ping the token so we know it has worked (comment out if annoying)
+    await canvas.ping(token.getCenterPoint(), {color: turnOn ? "#ffff00" : "#000000"})
 })
